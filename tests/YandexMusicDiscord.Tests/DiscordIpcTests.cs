@@ -12,7 +12,7 @@ public class DiscordIpcTests
     [Fact]
     public async Task SendsHandshakeAndListeningActivity()
     {
-        var pipeName = "yandex-presence-test-" + Guid.NewGuid().ToString("N");
+        var pipeName = "yandex-activity-test-" + Guid.NewGuid().ToString("N");
         await using var server = new NamedPipeServerStream(pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         await using var client = new DiscordIpcClient("123456789012345678", [pipeName]);
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));

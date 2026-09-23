@@ -7,7 +7,7 @@
 Из корня проекта:
 
 ```powershell
-dotnet run --project src/YandexMusicPresence/YandexMusicPresence.csproj
+dotnet run --project src/YandexMusicDiscord/YandexMusicDiscord.csproj
 ```
 
 Для проверки с собственным Discord-приложением можно передать `--client-id=ВАШ_APPLICATION_ID`.
@@ -15,15 +15,15 @@ dotnet run --project src/YandexMusicPresence/YandexMusicPresence.csproj
 ## Сборка
 
 ```powershell
-dotnet publish src/YandexMusicPresence/YandexMusicPresence.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist/win-x64
+dotnet publish src/YandexMusicDiscord/YandexMusicDiscord.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist/win-x64
 ```
 
-Готовый файл: `dist/win-x64/YandexMusicPresence.exe`.
+Готовый файл: `dist/win-x64/YandexMusicDiscord.exe`.
 
 ## Тесты
 
 ```powershell
-dotnet test tests/YandexMusicPresence.Tests/YandexMusicPresence.Tests.csproj
+dotnet test tests/YandexMusicDiscord.Tests/YandexMusicDiscord.Tests.csproj
 ```
 
 Для ручной проверки запустите музыку и посмотрите профиль с другого аккаунта Discord: кнопки Rich Presence не отображаются владельцу активности. Проверьте смену трека, паузу, повторное открытие обоих приложений и выход из трея.
