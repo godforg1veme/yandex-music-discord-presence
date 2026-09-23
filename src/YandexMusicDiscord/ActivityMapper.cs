@@ -1,6 +1,6 @@
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
-public static class PresenceMapper
+public static class ActivityMapper
 {
     public static DiscordActivity? Map(NowPlaying? track, string? coverUrl = null, string? trackUrl = null)
     {

@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
 internal static class Program
 {
@@ -11,7 +11,7 @@ internal static class Program
     [STAThread]
     private static void Main(string[] args)
     {
-        using var mutex = new Mutex(true, "YandexMusicDiscordPresence", out var firstInstance);
+        using var mutex = new Mutex(true, "YandexMusicDiscord", out var firstInstance);
         if (!firstInstance) return;
 
         ApplicationConfiguration.Initialize();
@@ -27,12 +27,17 @@ internal sealed class TrayContext : ApplicationContext
     private readonly NotifyIcon _icon;
     private readonly ToolStripMenuItem _statusItem;
     private readonly System.Windows.Forms.Timer _timer;
-    private readonly PresenceCoordinator? _coordinator;
+    private readonly ActivityCoordinator? _coordinator;
     private readonly CancellationTokenSource _shutdown = new();
     private bool _tickRunning;
 
     public TrayContext(string clientId)
     {
+        try { StartupRegistration.MigrateLegacyIfNeeded(); }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or InvalidOperationException)
+        {
+            // Startup migration is optional; the app can still run without it.
+        }
         _statusItem = new ToolStripMenuItem("Запуск…") { Enabled = false };
         var exitItem = new ToolStripMenuItem("Выход");
         exitItem.Click += ExitClicked;
@@ -70,7 +75,7 @@ internal sealed class TrayContext : ApplicationContext
             return;
         }
 
-        _coordinator = new PresenceCoordinator(new WindowsMediaSource(), new TrackResolver(), new DiscordIpcClient(clientId));
+        _coordinator = new ActivityCoordinator(new WindowsMediaSource(), new TrackResolver(), new DiscordIpcClient(clientId));
         _timer.Start();
         _ = UpdateAsync();
     }

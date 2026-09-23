@@ -3,9 +3,9 @@ using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
 using Xunit;
-using YandexMusicPresence;
+using YandexMusicDiscord;
 
-namespace YandexMusicPresence.Tests;
+namespace YandexMusicDiscord.Tests;
 
 public class DiscordIpcTests
 {

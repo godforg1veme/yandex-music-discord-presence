@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
 public sealed class TrackResolver
 {

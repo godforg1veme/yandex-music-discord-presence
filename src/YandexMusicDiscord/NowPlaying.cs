@@ -1,4 +1,4 @@
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
 public sealed record NowPlaying(
     string Title,

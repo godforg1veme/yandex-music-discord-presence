@@ -1,6 +1,6 @@
 using Windows.Media.Control;
 
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
 public sealed class WindowsMediaSource
 {

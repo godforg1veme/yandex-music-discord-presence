@@ -1,6 +1,6 @@
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
-public sealed class PresenceCoordinator
+public sealed class ActivityCoordinator
 {
     private readonly WindowsMediaSource _source;
     private readonly TrackResolver _resolver;
@@ -8,7 +8,7 @@ public sealed class PresenceCoordinator
     private DiscordActivity? _lastActivity;
     private DateTimeOffset _lastSent;
 
-    public PresenceCoordinator(WindowsMediaSource source, TrackResolver resolver, DiscordIpcClient discord)
+    public ActivityCoordinator(WindowsMediaSource source, TrackResolver resolver, DiscordIpcClient discord)
     {
         _source = source;
         _resolver = resolver;
@@ -24,7 +24,7 @@ public sealed class PresenceCoordinator
             var track = await _source.ReadAsync(cancellationToken);
             var links = track is null ? (CoverUrl: (string?)null, TrackUrl: (string?)null) :
                 await _resolver.ResolveAsync(track, cancellationToken);
-            var activity = PresenceMapper.Map(track, links.CoverUrl, links.TrackUrl);
+            var activity = ActivityMapper.Map(track, links.CoverUrl, links.TrackUrl);
 
             if (activity is null)
             {

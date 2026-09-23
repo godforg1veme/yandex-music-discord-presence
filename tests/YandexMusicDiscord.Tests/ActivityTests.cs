@@ -2,24 +2,24 @@ using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json;
 using Xunit;
-using YandexMusicPresence;
+using YandexMusicDiscord;
 
-namespace YandexMusicPresence.Tests;
+namespace YandexMusicDiscord.Tests;
 
-public class PresenceTests
+public class ActivityTests
 {
     [Fact]
     public void PausedTrackDoesNotCreateActivity()
     {
         var track = new NowPlaying("Song", "Artist", null, false, TimeSpan.Zero, TimeSpan.Zero, "YandexMusic.exe");
-        Assert.Null(PresenceMapper.Map(track));
+        Assert.Null(ActivityMapper.Map(track));
     }
 
     [Fact]
     public void ActiveTrackMapsTitleArtistAndArtwork()
     {
         var track = new NowPlaying("Song", "Artist", "Album", true, TimeSpan.Zero, TimeSpan.Zero, "YandexMusic.exe");
-        var activity = PresenceMapper.Map(track, "https://example.com/cover.jpg", "https://music.yandex.ru/album/1/track/2");
+        var activity = ActivityMapper.Map(track, "https://example.com/cover.jpg", "https://music.yandex.ru/album/1/track/2");
         Assert.Equal("Song", activity?.Details);
         Assert.Equal("Artist", activity?.State);
         Assert.Equal("https://example.com/cover.jpg", activity?.LargeImage);
@@ -30,7 +30,17 @@ public class PresenceTests
     public void MissingArtworkUsesUploadedDiscordAsset()
     {
         var track = new NowPlaying("Song", "Artist", null, true, TimeSpan.Zero, TimeSpan.Zero, "YandexMusic.exe");
-        Assert.Equal("presence-icon", PresenceMapper.Map(track)?.LargeImage);
+        Assert.Equal("presence-icon", ActivityMapper.Map(track)?.LargeImage);
+    }
+
+    [Theory]
+    [InlineData("\"C:\\Apps\\YandexMusicPresence.exe\"", true)]
+    [InlineData("C:\\Apps\\YandexMusicPresence.exe", true)]
+    [InlineData("\"C:\\Apps\\Other.exe\"", false)]
+    [InlineData("\"C:\\Apps\\YandexMusicPresence.exe\" --flag", false)]
+    public void RecognizesOnlyPreviousAutostartExecutable(string registryValue, bool expected)
+    {
+        Assert.Equal(expected, StartupRegistration.IsLegacyExecutableValue(registryValue));
     }
 
     [Theory]

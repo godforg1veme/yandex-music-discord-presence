@@ -3,7 +3,7 @@ using System.IO.Pipes;
 using System.Text;
 using System.Text.Json;
 
-namespace YandexMusicPresence;
+namespace YandexMusicDiscord;
 
 public sealed class DiscordIpcClient : IAsyncDisposable
 {
