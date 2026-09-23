@@ -36,9 +36,23 @@ internal sealed class TrayContext : ApplicationContext
         _statusItem = new ToolStripMenuItem("Запуск…") { Enabled = false };
         var exitItem = new ToolStripMenuItem("Выход");
         exitItem.Click += ExitClicked;
+        var startupItem = new ToolStripMenuItem("Запускать вместе с Windows") { Checked = StartupRegistration.IsEnabled() };
+        startupItem.Click += (_, _) =>
+        {
+            try
+            {
+                StartupRegistration.SetEnabled(!startupItem.Checked);
+                startupItem.Checked = StartupRegistration.IsEnabled();
+            }
+            catch (Exception ex)
+            {
+                _statusItem.Text = $"Ошибка автозапуска: {ex.Message}";
+            }
+        };
         var menu = new ContextMenuStrip();
         menu.Items.Add(_statusItem);
         menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add(startupItem);
         menu.Items.Add(exitItem);
         _icon = new NotifyIcon
         {
