@@ -5,8 +5,8 @@ namespace YandexMusicPresence;
 
 internal static class Program
 {
-    // Set this to the public Application ID from Discord Developer Portal for releases.
-    private const string DefaultApplicationId = "";
+    // Public application ID shared by all installations; no user token is needed.
+    private const string DefaultApplicationId = "1552113063606489088";
 
     [STAThread]
     private static void Main(string[] args)

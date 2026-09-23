@@ -9,6 +9,9 @@
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ApplicationIcon>../../assets/app.ico</ApplicationIcon>
+    <Version>0.1.0</Version>
+    <Product>Yandex Music Presence</Product>
+    <Description>Shows Yandex Music desktop playback in Discord Rich Presence.</Description>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="YandexMusicPresence.Tests" />

@@ -1,10 +1,13 @@
 # Yandex Music Presence
 
+[![Build](https://github.com/godforg1veme/yandex-music-discord-presence/actions/workflows/build.yml/badge.svg)](https://github.com/godforg1veme/yandex-music-discord-presence/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Лёгкий мост между официальным приложением Яндекс Музыки для Windows и профилем Discord. Текущий трек показывается как активность «Слушает»: название, исполнитель, обложка при точном совпадении в поиске и кнопка открытия трека.
 
 ## Статус проекта
 
-Исходники и сборка готовы для локальной проверки. Для публичного релиза нужно указать собственный публичный **Discord Application ID** и загрузить в него изображение Rich Presence с ключом `yandex_music`. Секретный ключ Discord и токен Яндекса программе не нужны.
+Пользователю не нужны токены, аккаунт разработчика или настройки Discord-приложения. Публичный **Discord Application ID** уже встроен в сборку. Секретный ключ Discord и токен Яндекса программе не нужны.
 
 ## Требования
 
@@ -12,17 +15,23 @@
 - [Официальное приложение Яндекс Музыки](https://music.yandex.ru/download/) для Windows.
 - Настольный Discord с включённым показом активности.
 
+## Установка
+
+1. Скачайте последнюю сборку из [Releases](https://github.com/godforg1veme/yandex-music-discord-presence/releases).
+2. Распакуйте архив в постоянную папку и запустите `YandexMusicPresence.exe`.
+3. Откройте настольные Яндекс Музыку и Discord. Когда заиграет трек, карточка появится в профиле автоматически.
+
+Программа живёт в трее. Правый клик по значку показывает состояние, переключатель автозапуска с Windows и пункт «Выход». Если сначала запущена программа, а Discord или Яндекс Музыка открыты позже, подключение произойдёт автоматически.
+
 ## Запуск из исходников
 
-1. Создайте приложение в [Discord Developer Portal](https://discord.com/developers/applications) и скопируйте его **Application ID**.
-2. В разделе Rich Presence загрузите [`assets/presence-icon.png`](assets/presence-icon.png) с ключом `yandex_music` — оно будет показано, если обложку песни определить не удалось.
-3. В PowerShell из корня проекта запустите:
+Из корня проекта запустите:
 
 ```powershell
-dotnet run --project src/YandexMusicPresence/YandexMusicPresence.csproj -- --client-id=ВАШ_APPLICATION_ID
+dotnet run --project src/YandexMusicPresence/YandexMusicPresence.csproj
 ```
 
-Программа появится в трее. Правый клик по значку показывает состояние, переключатель автозапуска с Windows и пункт «Выход». Если сначала запущена программа, а Discord или Яндекс Музыка открыты позже, подключение произойдёт автоматически.
+Для проверки с собственным Discord-приложением можно передать `--client-id=ВАШ_APPLICATION_ID`.
 
 ## Сборка одного файла
 
@@ -30,7 +39,7 @@ dotnet run --project src/YandexMusicPresence/YandexMusicPresence.csproj -- --cli
 dotnet publish src/YandexMusicPresence/YandexMusicPresence.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist/win-x64
 ```
 
-Готовый файл: `dist/win-x64/YandexMusicPresence.exe`. Перед массовой публикацией Application ID следует записать в `DefaultApplicationId` в `Program.cs` и пересобрать релиз. Это публичный идентификатор приложения, не секрет.
+Готовый файл: `dist/win-x64/YandexMusicPresence.exe`. Публичный ID Discord уже включён в исходники.
 
 ## Как это работает
 
