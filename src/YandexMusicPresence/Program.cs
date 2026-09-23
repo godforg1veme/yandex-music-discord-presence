@@ -42,7 +42,7 @@ internal sealed class TrayContext : ApplicationContext
         menu.Items.Add(exitItem);
         _icon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application,
             Text = "Яндекс Музыка → Discord",
             ContextMenuStrip = menu,
             Visible = true

@@ -29,6 +29,7 @@ public class PresenceTests
     [Theory]
     [InlineData("YandexMusic.exe", true)]
     [InlineData("ru.yandex.music", true)]
+    [InlineData("A025C540.Yandex.Music_vfvw9svesycw6", true)]
     [InlineData("Яндекс Музыка", true)]
     [InlineData("chrome.exe", false)]
     [InlineData("Spotify.exe", false)]

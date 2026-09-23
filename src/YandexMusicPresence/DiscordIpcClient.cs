@@ -8,9 +8,17 @@ namespace YandexMusicPresence;
 public sealed class DiscordIpcClient : IAsyncDisposable
 {
     private readonly string _applicationId;
+    private readonly IReadOnlyList<string> _pipeNames;
     private NamedPipeClientStream? _pipe;
 
-    public DiscordIpcClient(string applicationId) => _applicationId = applicationId;
+    public DiscordIpcClient(string applicationId)
+        : this(applicationId, Enumerable.Range(0, 10).Select(index => $"discord-ipc-{index}").ToArray()) { }
+
+    internal DiscordIpcClient(string applicationId, IReadOnlyList<string> pipeNames)
+    {
+        _applicationId = applicationId;
+        _pipeNames = pipeNames;
+    }
     public bool IsConnected => _pipe?.IsConnected == true;
 
     public async Task<bool> SetActivityAsync(DiscordActivity? activity, CancellationToken cancellationToken)
@@ -57,9 +65,9 @@ public sealed class DiscordIpcClient : IAsyncDisposable
     {
         if (IsConnected) return true;
         Disconnect();
-        for (var index = 0; index < 10; index++)
+        foreach (var pipeName in _pipeNames)
         {
-            var pipe = new NamedPipeClientStream(".", $"discord-ipc-{index}", PipeDirection.InOut, PipeOptions.Asynchronous);
+            var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
             try
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

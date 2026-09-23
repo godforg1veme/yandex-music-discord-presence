@@ -25,7 +25,7 @@ public sealed class TrackResolver
             using var body = JsonDocument.Parse(await response.Content.ReadAsStreamAsync(cancellationToken));
             resolved = ResolveResult(track, body.RootElement);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or JsonException or InvalidOperationException)
         {
             // The search endpoint is optional; Discord still receives song and artist.
         }
@@ -58,6 +58,13 @@ public sealed class TrackResolver
             matches = matches.Where(item => item.TryGetProperty("albums", out var albums) &&
                 albums.ValueKind == JsonValueKind.Array && albums.EnumerateArray().Any(album =>
                     album.TryGetProperty("title", out var title) && Same(title.GetString(), track.Album))).ToList();
+
+        if (matches.Count > 1 && track.Duration > TimeSpan.Zero)
+        {
+            matches = matches.Where(item => item.TryGetProperty("durationMs", out var duration) &&
+                duration.TryGetInt64(out var milliseconds) &&
+                Math.Abs(milliseconds - track.Duration.TotalMilliseconds) <= 2000).ToList();
+        }
         if (matches.Count != 1) return (null, null);
 
         var match = matches[0];
@@ -69,7 +76,7 @@ public sealed class TrackResolver
         var albumNumber = albumId.ToString();
         if (!long.TryParse(trackId, out _) || !long.TryParse(albumNumber, out _)) return (null, null);
         string? coverUrl = null;
-        if (match.TryGetProperty("coverUri", out var cover))
+        if (match.TryGetProperty("coverUri", out var cover) && cover.ValueKind == JsonValueKind.String)
         {
             var coverPath = cover.GetString()?.Replace("%%", "400x400");
             if (coverPath?.StartsWith("avatars.yandex.net/", StringComparison.OrdinalIgnoreCase) == true)
