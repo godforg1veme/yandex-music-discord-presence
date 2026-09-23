@@ -2,6 +2,7 @@ namespace YandexMusicDiscord;
 
 public static class ActivityMapper
 {
+    private const string FallbackArtworkKey = "yandex-music";
     public static DiscordActivity? Map(NowPlaying? track, string? coverUrl = null, string? trackUrl = null)
     {
         if (track is null || !track.IsPlaying ||
@@ -11,7 +12,7 @@ public static class ActivityMapper
         return new DiscordActivity(
             Bound(track.Title.Trim()),
             Bound(track.Artist.Trim()),
-            string.IsNullOrWhiteSpace(coverUrl) ? "presence-icon" : coverUrl,
+            string.IsNullOrWhiteSpace(coverUrl) ? FallbackArtworkKey : coverUrl,
             string.IsNullOrWhiteSpace(trackUrl) ? null : trackUrl);
     }
 

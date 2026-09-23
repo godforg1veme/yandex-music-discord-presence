@@ -30,7 +30,7 @@ public class ActivityTests
     public void MissingArtworkUsesUploadedDiscordAsset()
     {
         var track = new NowPlaying("Song", "Artist", null, true, TimeSpan.Zero, TimeSpan.Zero, "YandexMusic.exe");
-        Assert.Equal("presence-icon", ActivityMapper.Map(track)?.LargeImage);
+        Assert.Equal("yandex-music", ActivityMapper.Map(track)?.LargeImage);
     }
 
     [Theory]
