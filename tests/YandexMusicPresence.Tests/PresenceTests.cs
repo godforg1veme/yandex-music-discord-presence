@@ -26,9 +26,17 @@ public class PresenceTests
         Assert.Equal("https://music.yandex.ru/album/1/track/2", activity?.TrackUrl);
     }
 
+    [Fact]
+    public void MissingArtworkUsesUploadedDiscordAsset()
+    {
+        var track = new NowPlaying("Song", "Artist", null, true, TimeSpan.Zero, TimeSpan.Zero, "YandexMusic.exe");
+        Assert.Equal("presence-icon", PresenceMapper.Map(track)?.LargeImage);
+    }
+
     [Theory]
     [InlineData("YandexMusic.exe", true)]
     [InlineData("ru.yandex.music", true)]
+    [InlineData("ru.yandex.desktop.music", true)]
     [InlineData("A025C540.Yandex.Music_vfvw9svesycw6", true)]
     [InlineData("Яндекс Музыка", true)]
     [InlineData("chrome.exe", false)]

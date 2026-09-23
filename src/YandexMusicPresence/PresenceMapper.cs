@@ -11,7 +11,7 @@ public static class PresenceMapper
         return new DiscordActivity(
             Bound(track.Title.Trim()),
             Bound(track.Artist.Trim()),
-            string.IsNullOrWhiteSpace(coverUrl) ? "yandex_music" : coverUrl,
+            string.IsNullOrWhiteSpace(coverUrl) ? "presence-icon" : coverUrl,
             string.IsNullOrWhiteSpace(trackUrl) ? null : trackUrl);
     }
 

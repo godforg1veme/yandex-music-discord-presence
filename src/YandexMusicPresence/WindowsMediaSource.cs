@@ -11,6 +11,7 @@ public sealed class WindowsMediaSource
         if (string.IsNullOrWhiteSpace(sourceId)) return false;
         var normalized = sourceId.ToLowerInvariant().Replace(" ", "").Replace("_", "").Replace(".", "").Replace("-", "");
         return normalized.Contains("yandexmusic", StringComparison.Ordinal) ||
+               normalized.Contains("yandexdesktopmusic", StringComparison.Ordinal) ||
                normalized.Contains("яндексмузыка", StringComparison.Ordinal);
     }
 
