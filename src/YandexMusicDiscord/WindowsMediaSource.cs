@@ -2,7 +2,7 @@ using Windows.Media.Control;
 
 namespace YandexMusicDiscord;
 
-public sealed class WindowsMediaSource
+public sealed class WindowsMediaSource : INowPlayingSource
 {
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
 
@@ -34,8 +34,9 @@ public sealed class WindowsMediaSource
             properties.Artist,
             properties.AlbumTitle,
             true,
-            timeline.Position,
+            timeline.Position - timeline.StartTime,
             timeline.EndTime - timeline.StartTime,
-            session.SourceAppUserModelId);
+            session.SourceAppUserModelId,
+            timeline.LastUpdatedTime);
     }
 }

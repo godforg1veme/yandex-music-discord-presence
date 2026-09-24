@@ -7,9 +7,14 @@ namespace YandexMusicDiscord;
 
 public sealed class DiscordIpcClient : IAsyncDisposable
 {
+    internal const string TrackButtonLabel = "В Яндекс Музыке";
+
     private readonly string _applicationId;
     private readonly IReadOnlyList<string> _pipeNames;
     private NamedPipeClientStream? _pipe;
+    private string? _lastLoggedError;
+
+    internal string? LastError { get; private set; }
 
     public DiscordIpcClient(string applicationId)
         : this(applicationId, Enumerable.Range(0, 10).Select(index => $"discord-ipc-{index}").ToArray()) { }
@@ -23,18 +28,31 @@ public sealed class DiscordIpcClient : IAsyncDisposable
 
     public async Task<bool> SetActivityAsync(DiscordActivity? activity, CancellationToken cancellationToken)
     {
+        LastError = null;
         try
         {
-            if (!await ConnectAsync(cancellationToken)) return false;
-            var nonce = Guid.NewGuid().ToString("N");
-            object? mapped = activity is null ? null : new
+            if (!await ConnectAsync(cancellationToken))
             {
-                type = 2,
-                details = activity.Details,
-                state = activity.State,
-                assets = new { large_image = activity.LargeImage, large_text = "Яндекс Музыка" },
-                buttons = activity.TrackUrl is null ? null : new[] { new { label = "Открыть трек", url = activity.TrackUrl } }
-            };
+                SetError("Не найден локальный канал Discord IPC (discord-ipc-0…9).");
+                return false;
+            }
+            var nonce = Guid.NewGuid().ToString("N");
+            object? mapped = null;
+            if (activity is not null)
+            {
+                var payload = new Dictionary<string, object?>
+                {
+                    ["type"] = 2,
+                    ["details"] = activity.Details,
+                    ["state"] = activity.State,
+                    ["assets"] = new { large_image = activity.LargeImage, large_text = "Яндекс Музыка" }
+                };
+                if (activity.StartedAtUnixSeconds is { } startedAt)
+                    payload["timestamps"] = new { start = startedAt };
+                if (activity.TrackUrl is not null)
+                    payload["buttons"] = new[] { new { label = TrackButtonLabel, url = activity.TrackUrl } };
+                mapped = payload;
+            }
             var command = new { cmd = "SET_ACTIVITY", args = new { pid = Environment.ProcessId, activity = mapped }, nonce };
             await WriteFrameAsync(_pipe!, 1, JsonSerializer.Serialize(command), cancellationToken);
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -47,18 +65,50 @@ public sealed class DiscordIpcClient : IAsyncDisposable
                     await WriteFrameAsync(_pipe!, 4, frame.Payload, timeout.Token);
                     continue;
                 }
-                if (frame.Opcode != 1) return false;
+                if (frame.Opcode != 1)
+                {
+                    SetError($"Неожиданный ответ Discord IPC: opcode {frame.Opcode}.");
+                    return false;
+                }
                 using var response = JsonDocument.Parse(frame.Payload);
                 var root = response.RootElement;
                 if (root.TryGetProperty("nonce", out var returned) && returned.GetString() == nonce)
-                    return !(root.TryGetProperty("evt", out var evt) && evt.GetString() == "ERROR");
+                {
+                    if (root.TryGetProperty("evt", out var evt) && evt.GetString() == "ERROR")
+                    {
+                        var message = root.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Object &&
+                            data.TryGetProperty("message", out var errorMessage) &&
+                            errorMessage.ValueKind == JsonValueKind.String
+                                ? errorMessage.GetString()
+                                : null;
+                        SetError(string.IsNullOrWhiteSpace(message) ? "Discord отклонил активность." : $"Discord отклонил активность: {message}");
+                        return false;
+                    }
+                    return true;
+                }
             }
         }
         catch (Exception ex) when (ex is IOException or TimeoutException or OperationCanceledException or JsonException)
         {
+            if (!cancellationToken.IsCancellationRequested)
+                SetError($"Ошибка IPC Discord: {ex.Message}");
             Disconnect();
             return false;
         }
+    }
+
+    private void SetError(string message)
+    {
+        LastError = message;
+        if (message == _lastLoggedError) return;
+        _lastLoggedError = message;
+        try
+        {
+            var logPath = Path.Combine(Path.GetTempPath(), "YandexMusicDiscord-discord-error.log");
+            File.WriteAllText(logPath, $"{DateTimeOffset.Now:O} {message}");
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
     }
 
     private async Task<bool> ConnectAsync(CancellationToken cancellationToken)

@@ -7,10 +7,13 @@ public sealed record NowPlaying(
     bool IsPlaying,
     TimeSpan Position,
     TimeSpan Duration,
-    string SourceId);
+    string SourceId,
+    DateTimeOffset? PositionUpdatedAt = null);
 
 public sealed record DiscordActivity(
     string Details,
     string State,
     string LargeImage,
-    string? TrackUrl);
+    string? TrackUrl,
+    string? BrowserTrackUrl = null,
+    long? StartedAtUnixSeconds = null);

@@ -31,4 +31,8 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create ${{ github.ref_name }} dist/YandexMusicDiscord-win-x64.zip dist/SHA256SUMS.txt --generate-notes --title "Yandex Music for Discord ${{ github.ref_name }}"
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $notesFile = Join-Path docs/releases "$env:RELEASE_TAG.md"
+          $notesArgs = if (Test-Path -LiteralPath $notesFile) { @('--notes-file', $notesFile) } else { @('--generate-notes') }
+          gh release create $env:RELEASE_TAG dist/YandexMusicDiscord-win-x64.zip dist/SHA256SUMS.txt @notesArgs --title "Yandex Music for Discord $env:RELEASE_TAG"
